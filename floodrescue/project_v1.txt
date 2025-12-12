@@ -1,0 +1,352 @@
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <sstream>
+#include <Windows.h>
+
+using namespace sf;
+using namespace std;
+
+static string s(double n) {
+	stringstream ss;
+	ss << n;
+	return ss.str();
+}
+
+
+int main()
+{	
+	b:
+	RenderWindow start(VideoMode(1000, 800), "start");
+
+	Texture st;
+	st.loadFromFile("stscreen2.png");
+
+	Sprite stscreen(st);
+
+	while (start.isOpen()) {
+
+		Event event;
+		while (start.pollEvent(event)) {
+			if (Keyboard::isKeyPressed(Keyboard::Enter)) {
+				start.close();
+			}
+
+			if (event.type == Event::Closed || Keyboard::isKeyPressed(Keyboard::Escape)) {
+				start.close();
+				return 0;
+			}
+		}
+
+		start.clear();
+		start.draw(stscreen);
+		start.display();
+
+	}
+
+	double live = 3;
+	double score = 0;
+
+a:
+	srand(time(NULL));
+
+	int speed1 = 0, speed2 = 0, speed3 = 0, speed4 = 0, speed5 = 0;
+
+	speed1 = rand() % 5 + 1;
+	speed2 = rand() % 5 + 1;
+	speed3 = rand() % 5 + 1;
+	speed4 = rand() % 5 + 1;
+	speed5 = rand() % 5 + 1;
+
+	int manposrand = 0;
+	manposrand = rand() % 5 + 1;
+
+	int logp1 = 340, logp2 = 440, logp3 = 540, logp4 = 640, logp5 = 740;
+
+	int x = 4, y = 4;
+
+
+
+	Font myfont; 
+	Text myscore;
+	Text sscore;
+
+	myfont.loadFromFile("pxfont.ttf");
+
+	SoundBuffer g;
+	g.loadFromFile("failure.mp3");
+
+	RenderWindow maingame(VideoMode(1000, 800), "maingame");
+
+	if (live == 0) {
+
+		Texture over;
+		over.loadFromFile("gameover2.png");
+		Sprite gameover(over);
+
+		maingame.clear();
+		maingame.draw(gameover);
+		maingame.display();
+
+		Sound go;
+		go.setBuffer(g);
+		go.play();
+
+		Sleep(3000);
+
+		goto b;
+
+	}
+
+	Texture h;
+	h.loadFromFile("heart.png");
+
+	Sprite heart[3];
+
+	heart[0].setTexture(h);
+	heart[0].setPosition(790, 70);
+
+	heart[1].setTexture(h);
+	heart[1].setPosition(850, 70);
+
+	heart[2].setTexture(h);
+	heart[2].setPosition(910, 70);
+
+
+	Texture bgtex;
+	bgtex.loadFromFile("gamebg.png");
+	bgtex.setRepeated(true);
+
+	Texture bgtex2;
+	bgtex2.loadFromFile("gamebg2.png");
+
+	Sprite bg1(bgtex);
+	Sprite bg2(bgtex2);
+
+	bg1.setPosition(0, 0);
+	bg2.setPosition(1000, 0);
+
+	float scrollspeed = 0.5f;
+
+	Texture m;
+	m.loadFromFile("man.png");
+	Sprite man(m);
+	man.setPosition(500, 430);
+
+	Texture sh;
+	sh.loadFromFile("ship1.png");
+	Sprite ship(sh);
+	ship.setPosition( 20, 480);
+
+	Texture l1;
+	l1.loadFromFile("laga.png");
+
+
+	Sprite log1(l1);
+	log1.setPosition(1000, 340);
+
+	Sprite log2(l1);
+	log2.setPosition(1000, 440);
+
+	Sprite log3(l1);
+	log3.setPosition(1000, 540);
+
+	Sprite log4(l1);
+	log4.setPosition(1000, 640);
+
+	Sprite log5(l1);
+	log5.setPosition(1000, 740);
+
+	Texture bmb;
+	bmb.loadFromFile("bomb2.png");
+	Sprite bomb(bmb);
+
+	Music music;
+	music.openFromFile("bgm.mp3");
+	music.play();
+	music.setLoop(true);
+
+	SoundBuffer buffer;
+	buffer.loadFromFile("crash.wav");
+
+	SoundBuffer bonus;
+	bonus.loadFromFile("point.mp3");
+
+	Sound point;
+	point.setBuffer(bonus);
+
+
+	while (maingame.isOpen()) {
+
+		score += 0.01;
+
+		myscore.setFont(myfont);
+		myscore.setString(s(score));
+
+		myscore.setCharacterSize(20);
+		myscore.setFillColor(sf::Color::Yellow);
+		myscore.setOutlineColor(sf::Color::Black);
+		myscore.setOutlineThickness(3);
+
+		myscore.setPosition(215, 70);
+		
+		
+		sscore.setFont(myfont);
+		sscore.setString("SCORE: ");
+
+		sscore.setCharacterSize(20);
+		sscore.setFillColor(sf::Color::Yellow);
+		sscore.setOutlineColor(sf::Color::Black);
+		sscore.setOutlineThickness(3);
+
+		sscore.setPosition(30, 70);
+
+		maingame.setFramerateLimit(110);
+
+		Event e;
+		while (maingame.pollEvent(e)) {
+			if (e.type == Event::Closed) {
+				maingame.close();
+			}
+		}	
+
+		bg1.move(-scrollspeed, 0);
+		bg2.move(-scrollspeed, 0);
+
+		if (bg1.getPosition().x <= -1000) {
+			bg1.setPosition(bg2.getPosition().x + 1000, 0);
+		}
+
+		if (bg2.getPosition().x <= -1000) {
+			bg2.setPosition(bg1.getPosition().x + 1000, 0);
+		}
+
+			if (Keyboard::isKeyPressed(Keyboard::Up) && ship.getPosition().y > 280) {
+				ship.move(0, -y);
+			}
+
+			if (Keyboard::isKeyPressed(Keyboard::Down) && ship.getPosition().y < 680) {
+				ship.move(0, y);
+			}
+			if (Keyboard::isKeyPressed(Keyboard::Left) && ship.getPosition().x > 50) {
+				ship.move(-x, 0);
+			}
+			if (Keyboard::isKeyPressed(Keyboard::Right) && ship.getPosition().x < 1000) {
+				ship.move(x, 0);
+			}
+
+			
+
+			if (log1.getPosition().x <= 20)log1.setPosition(1000, logp1);
+			if (log2.getPosition().x <= 20)log2.setPosition(1000, logp2);
+			if (log3.getPosition().x <= 20)log3.setPosition(1000, logp3);
+			if (log4.getPosition().x <= 20)log4.setPosition(1000, logp4);
+			if (log5.getPosition().x <= 20)log5.setPosition(1000, logp5);
+
+			if(log1.getPosition().x <= 20) speed1 = rand() % 5 + 1;
+			if (log2.getPosition().x <= 20) speed2 = rand() % 5 + 1;
+			if (log3.getPosition().x <= 20) speed3 = rand() % 5 + 1;
+			if (log4.getPosition().x <= 20) speed4 = rand() % 5 + 1;
+			if (log5.getPosition().x <= 20) speed5 = rand() % 5 + 1;
+
+			if (log1.getPosition().x == 1000) speed1 = rand() % 5 + 1;
+			if (log2.getPosition().x == 1000) speed2 = rand() % 5 + 1;
+			if (log3.getPosition().x == 1000) speed3 = rand() % 5 + 1;
+			if (log4.getPosition().x == 1000) speed4 = rand() % 5 + 1;
+			if (log5.getPosition().x == 1000) speed5 = rand() % 5 + 1;
+
+
+			log1.move(-(speed1 / 2 + 1), 0);
+			log2.move(-(speed2 / 2 + 1), 0);
+			log3.move(-(speed3 / 2 + 1), 0);
+			log4.move(-(speed4 / 2 + 1), 0);
+			log5.move(-(speed5 / 2 + 1), 0);
+
+
+			sf::FloatRect shipCollisionRect(
+				ship.getPosition().x, // x offset from current posi
+				ship.getPosition().y + 60, // y offset from current position
+				105,                        // custom width
+				40                         // custom height
+			);
+
+
+			if (shipCollisionRect.intersects(log1.getGlobalBounds()) ||
+				shipCollisionRect.intersects(log2.getGlobalBounds()) ||
+				shipCollisionRect.intersects(log3.getGlobalBounds()) ||
+				shipCollisionRect.intersects(log4.getGlobalBounds()) ||
+				shipCollisionRect.intersects(log5.getGlobalBounds())) {
+
+				music.pause();
+				Sound crash;
+				crash.setBuffer(buffer);
+				crash.play();
+				bomb.setPosition(ship.getPosition().x + 25, ship.getPosition().y + 25);
+				maingame.draw(bomb);
+				maingame.display();
+				Sleep(500);
+
+				live--;
+
+				goto a;
+			}
+
+			bool hit = false;
+
+			if (ship.getGlobalBounds().intersects(man.getGlobalBounds())) {
+
+				if (!hit) {
+					hit = true;
+					point.play();
+				}
+
+				if (manposrand == 1) man.setPosition(1000, 330);
+				if (manposrand == 2) man.setPosition(1000, 430);
+				if (manposrand == 3) man.setPosition(1000, 530);
+				if (manposrand == 4) man.setPosition(1000, 630);
+				if (manposrand == 5) man.setPosition(1000, 730);
+
+				score = score + 100;
+
+				
+			}
+
+			if (man.getPosition().x <= 20) {
+
+				if (manposrand == 1) man.setPosition(1000, 330);
+				if (manposrand == 2) man.setPosition(1000, 430);
+				if (manposrand == 3) man.setPosition(1000, 530);
+				if (manposrand == 4) man.setPosition(1000, 630);
+				if (manposrand == 5) man.setPosition(1000, 730);
+
+				manposrand = rand() % 5 + 1;
+			}
+
+			man.move(-1, 0);
+			manposrand = rand() % 5 + 1;
+
+			maingame.clear();
+
+			maingame.draw(bg1);
+			maingame.draw(bg2);
+			maingame.draw(myscore);
+			maingame.draw(sscore);
+			maingame.draw(log1);
+			maingame.draw(log2);
+			maingame.draw(log3);
+			maingame.draw(log4);
+			maingame.draw(log5);
+			maingame.draw(ship);
+			maingame.draw(man);
+
+			for (int i = 0; i < live; i++) {
+				maingame.draw(heart[i]);
+			}
+
+			maingame.display();
+
+		}
+
+		return 0;
+
+}
+
